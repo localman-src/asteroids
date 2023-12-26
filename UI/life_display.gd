@@ -1,7 +1,7 @@
 class_name LifeDisplay extends PanelContainer
 
 const life_icon: PackedScene = preload("res://UI/life_icon.tscn")
-var max_lives: int
+var max_lives: int = 3
 
 @onready var life_container: GridContainer = $GridContainer
 # Called when the node enters the scene tree for the first time.

@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://dw0owirsn8ssk"]
+
+[ext_resource type="Script" path="res://UI/hud.gd" id="1_sc4i1"]
+[ext_resource type="PackedScene" uid="uid://c4kkccgrcngfl" path="res://UI/life_display.tscn" id="2_fdhja"]
+[ext_resource type="PackedScene" uid="uid://bmoirqijkkrnf" path="res://UI/score_display.tscn" id="3_o0gv3"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_sc4i1")
+
+[node name="LifeDisplay" parent="." instance=ExtResource("2_fdhja")]
+layout_mode = 0
+
+[node name="ScoreDisplay" parent="." instance=ExtResource("3_o0gv3")]
+layout_mode = 0
+offset_left = 556.0
+offset_right = 640.0

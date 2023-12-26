@@ -9,7 +9,7 @@ static var ARENA_HEIGHT: float = 480.0
 static var ARENA_CENTER: Vector2 = Vector2(ARENA_WIDTH / 2, ARENA_HEIGHT / 2)
 
 var player: PackedScene = preload("res://Entities/player.tscn")
-var life_display: PackedScene = preload("res://UI/life_display.tscn")
+var hud: PackedScene = preload("res://UI/hud.tscn")
 var large_asteroid: PackedScene = preload("res://Entities/large_asteroid.tscn")
 
 var max_lives: int = 3
@@ -46,9 +46,9 @@ func start_game() -> void:
 	entities.add_child(new_player)
 	current_player = new_player
 	
-	var new_life_display: LifeDisplay = life_display.instantiate()
-	new_life_display.max_lives = self.max_lives
-	UI.add_child(new_life_display)
+	var new_hud: HUD = hud.instantiate()
+	UI.add_child(new_hud)
+	new_hud.life_display.max_lives = max_lives
 
 func enter_title_state() -> void:
 	gamestate = GAME_STATE.title
@@ -68,7 +68,6 @@ func _on_priority_sfx_request(sound: AudioStream, priority: int) -> void:
 func reset() -> void:
 	gamestate = GAME_STATE.title
 	enter_title_state()
-	UI.get_node("LifeDisplay").queue_free()
 	get_tree().call_group("reset", "reset")
 
 func _on_player_death() -> void:
