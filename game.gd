@@ -15,6 +15,7 @@ var large_asteroid: PackedScene = preload("res://Entities/large_asteroid.tscn")
 var max_lives: int = 3
 var current_lives: int = max_lives
 var current_player: Player
+var current_score: int = 0
 var gamestate: Game.GAME_STATE
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
@@ -30,10 +31,11 @@ func _process(_delta: float) -> void:
 			if Input.is_action_just_pressed("ui_accept"):
 				get_tree().call_group("title_screen", "queue_free")
 				start_game()
+			if Input.is_action_just_pressed("ui_cancel"):
+				get_tree().quit()
 		GAME_STATE.active:
 			if Input.is_action_just_pressed("ui_cancel"):
 				gamestate = GAME_STATE.game_over
-			pass
 		GAME_STATE.game_over:
 			reset()
 
@@ -67,19 +69,27 @@ func _on_priority_sfx_request(sound: AudioStream, priority: int) -> void:
 
 func reset() -> void:
 	gamestate = GAME_STATE.title
+	current_lives = max_lives
+	current_score = 0
 	enter_title_state()
 	get_tree().call_group("reset", "reset")
 
 func _on_player_death() -> void:
 	current_lives -= 1
 	if current_lives > 0:
-		var life_ui_panel: LifeDisplay = UI.get_node("LifeDisplay")
-		life_ui_panel.remove_life()
-		current_player.reset()
+		remove_life_from_ui()
+		current_player.position = ARENA_CENTER
 	else:
-		current_lives = max_lives
 		reset()
 
+func update_score_ui(score: int) -> void:
+	var current_hud: HUD = UI.get_node("HUD")
+	current_hud.update_score(score)
+
+func remove_life_from_ui() -> void:
+	var current_hud: HUD = UI.get_node("HUD")
+	current_hud.life_display.remove_life()
+	
 static func is_out_of_play(node: Node2D) -> bool:
 	var collision: CollisionShape2D = node.get_node_or_null("CollisionShape2D")
 	if collision != null:
@@ -90,3 +100,6 @@ static func is_out_of_play(node: Node2D) -> bool:
 		var up: bool = node.position.y < 0 - hitbox.size.y
 		return right || down || left || up
 	return false
+
+
+
