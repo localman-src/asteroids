@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://dd2mntclc354u"]
+
+[ext_resource type="Script" path="res://UI/StartGamePrompt.gd" id="1_lgmu8"]
+
+[node name="TitleText" type="Label"]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 86
+text = "A STEROID CITY"
+
+[node name="StartGamePrompt" type="Label" parent="."]
+layout_mode = 0
+offset_left = 226.0
+offset_top = 225.0
+offset_right = 400.0
+offset_bottom = 248.0
+text = "Press Spacebar to Play"
+script = ExtResource("1_lgmu8")

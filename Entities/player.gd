@@ -12,6 +12,7 @@ var current_velocity: Vector2 = Vector2(0, 0)
 var current_direction: Vector2 = Vector2(0, 0)
 
 signal we_need_a_beep(sound: AudioStream, priority: int)
+signal im_freaking_dead
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision: CollisionShape2D = $CollisionShape2D
@@ -24,9 +25,9 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	var rotation_input = Input.get_axis("ui_left", "ui_right")
-	var acceleration_input = Input.is_action_pressed("ui_up")
-	var fire = Input.is_action_just_pressed("fire")
+	var rotation_input: float = Input.get_axis("ui_left", "ui_right")
+	var acceleration_input: bool = Input.is_action_pressed("ui_up")
+	var fire: bool = Input.is_action_just_pressed("fire")
 	self.rotation += rotation_input * rotation_speed * delta
 	self.current_direction = Vector2.from_angle(self.rotation - PI/2)
 	if acceleration_input:
@@ -60,4 +61,4 @@ func shoot() -> void:
 	$"..".add_child(new_projectile)
 
 func reset() -> void:
-	self.position = Game.ARENA_CENTER
+	queue_free()

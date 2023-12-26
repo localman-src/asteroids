@@ -15,11 +15,22 @@ run/main_scene="res://game.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 
+[debug]
+
+gdscript/warnings/untyped_declaration=1
+gdscript/warnings/inferred_declaration=1
+gdscript/warnings/unsafe_property_access=1
+gdscript/warnings/unsafe_method_access=1
+
 [display]
 
 window/size/viewport_width=640
 window/size/viewport_height=480
 window/stretch/mode="viewport"
+
+[editor]
+
+movie_writer/movie_file="C:/Users/david/Documents/Godot Projects/movie.avi"
 
 [input]
 

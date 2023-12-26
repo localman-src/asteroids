@@ -1,8 +1,9 @@
-class_name LifeDisplay extends GridContainer
+class_name LifeDisplay extends PanelContainer
 
 const life_icon: PackedScene = preload("res://UI/life_icon.tscn")
 var max_lives: int
 
+@onready var life_container: GridContainer = $GridContainer
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("reset")
@@ -10,21 +11,22 @@ func _ready() -> void:
 		self.add_life()
 
 func get_current_lives() -> int:
-	return get_children().size()
+	return life_container.get_children().size()
 
 func remove_life() -> void:
-	var lives: Array[Node] = get_children()
+	var lives: Array[Node] = life_container.get_children()
 	if lives.size() > 0:
-		lives.pop_back().queue_free()
+		var lost_life: Node = lives.pop_back()
+		lost_life.queue_free()
 
 func add_life() -> void:
-	var lives: Array[Node] = get_children()
+	var lives: Array[Node] = life_container.get_children()
 	if lives.size() < max_lives:
-		var new_life_icon = life_icon.instantiate()
-		self.add_child(new_life_icon)
+		var new_life_icon: TextureRect = life_icon.instantiate()
+		life_container.add_child(new_life_icon)
 
 func reset() -> void:
-	var current_lives: int = get_children().size()
+	var current_lives: int = life_container.get_children().size()
 	while current_lives < max_lives:
 		add_life()
-		current_lives = get_children().size()
+		current_lives = life_container.get_children().size()
