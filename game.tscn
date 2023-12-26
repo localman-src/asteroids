@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3 uid="uid://dl5uh8bnq85lh"]
+
+[ext_resource type="Script" path="res://game.gd" id="1_0bc3q"]
+[ext_resource type="Texture2D" uid="uid://bjimsb7v277nn" path="res://Assets/Art/Backgrounds/background.png" id="1_a7lvi"]
+[ext_resource type="PackedScene" uid="uid://w0yybb8rj0wg" path="res://Services/sfx_player.tscn" id="2_xnihr"]
+[ext_resource type="Texture2D" uid="uid://bqxuqylmse3kb" path="res://Assets/Art/Backgrounds/far_stars.png" id="2_xyst3"]
+[ext_resource type="Texture2D" uid="uid://hsyomatlox2w" path="res://Assets/Art/Backgrounds/med_stars.png" id="3_eo640"]
+[ext_resource type="Texture2D" uid="uid://bdgtdhqopge61" path="res://Assets/Art/Backgrounds/close_stars.png" id="4_rrici"]
+
+[node name="Game" type="Node"]
+script = ExtResource("1_0bc3q")
+
+[node name="Services" type="Node" parent="."]
+
+[node name="SFXPlayer" parent="Services" instance=ExtResource("2_xnihr")]
+
+[node name="World" type="Node" parent="."]
+
+[node name="Background" type="CanvasLayer" parent="World"]
+layer = 0
+
+[node name="BackgroundColor" type="TextureRect" parent="World/Background"]
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("1_a7lvi")
+stretch_mode = 1
+
+[node name="FarStars" type="TextureRect" parent="World/Background"]
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("2_xyst3")
+stretch_mode = 1
+
+[node name="MedStars" type="TextureRect" parent="World/Background"]
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("3_eo640")
+stretch_mode = 1
+
+[node name="CloseStars" type="TextureRect" parent="World/Background"]
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("4_rrici")
+stretch_mode = 1
+
+[node name="Entities" type="CanvasLayer" parent="World"]
+
+[node name="UI" type="CanvasLayer" parent="World"]
+layer = 2

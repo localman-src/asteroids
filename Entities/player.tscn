@@ -1,0 +1,68 @@
+[gd_scene load_steps=11 format=3 uid="uid://dkc7fkpigudfy"]
+
+[ext_resource type="Script" path="res://Entities/player.gd" id="1_fhini"]
+[ext_resource type="Texture2D" uid="uid://bkua3bb28b3ig" path="res://Assets/Art/player.png" id="1_udbr4"]
+[ext_resource type="PackedScene" uid="uid://bsp371bulvqcd" path="res://Components/health_component.tscn" id="3_mv67h"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6606e"]
+atlas = ExtResource("1_udbr4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7f7h"]
+atlas = ExtResource("1_udbr4")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8rp8f"]
+atlas = ExtResource("1_udbr4")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6s4xe"]
+atlas = ExtResource("1_udbr4")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e6cw5"]
+atlas = ExtResource("1_udbr4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8vxo3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6606e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u7f7h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8rp8f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6s4xe")
+}],
+"loop": true,
+"name": &"Accelerating",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e6cw5")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5hcp7"]
+size = Vector2(10, 20)
+
+[node name="Player" type="Area2D"]
+script = ExtResource("1_fhini")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_8vxo3")
+animation = &"Accelerating"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_5hcp7")
+
+[node name="HealthComponent" parent="." instance=ExtResource("3_mv67h")]

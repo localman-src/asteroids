@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4kkccgrcngfl"]
+
+[ext_resource type="Script" path="res://UI/life_display.gd" id="1_2l5b5"]
+
+[node name="LifeDisplay" type="GridContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+columns = 3
+script = ExtResource("1_2l5b5")
