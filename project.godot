@@ -32,6 +32,10 @@ window/stretch/mode="viewport"
 
 movie_writer/movie_file="C:/Users/david/Documents/Godot Projects/movie.avi"
 
+[filesystem]
+
+import/blender/enabled=false
+
 [input]
 
 fire={

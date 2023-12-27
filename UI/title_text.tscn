@@ -3,16 +3,25 @@
 [ext_resource type="Script" path="res://UI/StartGamePrompt.gd" id="1_lgmu8"]
 
 [node name="TitleText" type="Label"]
-offset_right = 40.0
-offset_bottom = 23.0
+offset_left = 90.0
+offset_right = 550.0
+offset_bottom = 118.0
 theme_override_font_sizes/font_size = 86
-text = "A STEROID CITY"
+text = "ASTEROIDS"
 
 [node name="StartGamePrompt" type="Label" parent="."]
 layout_mode = 0
-offset_left = 226.0
+offset_left = 140.0
 offset_top = 225.0
-offset_right = 400.0
+offset_right = 314.0
 offset_bottom = 248.0
 text = "Press Spacebar to Play"
 script = ExtResource("1_lgmu8")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 163.0
+offset_top = 131.0
+offset_right = 291.0
+offset_bottom = 154.0
+text = "(Legally Distinct)"

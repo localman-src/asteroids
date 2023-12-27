@@ -16,6 +16,7 @@ var max_lives: int = 3
 var current_lives: int = max_lives
 var current_player: Player
 var current_score: int = 0
+var current_level: int = 1
 var gamestate: Game.GAME_STATE
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
@@ -31,7 +32,6 @@ func _process(_delta: float) -> void:
 	match gamestate:
 		GAME_STATE.title:
 			if Input.is_action_just_pressed("ui_accept"):
-				get_tree().call_group("title_screen", "queue_free")
 				enter_active_state()
 			if Input.is_action_just_pressed("ui_cancel"):
 				get_tree().quit()
@@ -56,10 +56,11 @@ func enter_title_state() -> void:
 	
 func enter_active_state() -> void:
 	gamestate = GAME_STATE.active
+	get_tree().call_group("title_screen", "queue_free")
 	var new_player: Player = player.instantiate()
 	new_player.we_need_a_beep.connect(_on_priority_sfx_request)
 	new_player.im_freaking_dead.connect(_on_player_death)
-	new_player.position = Vector2(ARENA_WIDTH / 2, ARENA_HEIGHT / 2)
+	new_player.position = ARENA_CENTER
 	entities.add_child(new_player)
 	current_player = new_player
 	
@@ -67,16 +68,20 @@ func enter_active_state() -> void:
 	UI.add_child(new_hud)
 	new_hud.life_display.max_lives = max_lives
 	
+	for i: int in current_level + 1:
+		spawn_large_asteroid()
+
+func spawn_large_asteroid() -> void:
 	var _pos: Vector2 = Vector2(randf_range(0, ARENA_WIDTH / 3), randf_range(0, ARENA_HEIGHT) / 3)
 	var _origin: Vector2 = Vector2(randi() % 3, randi() % 3)
 	if _origin == Vector2(1,1):
 		_origin.x += 1
 	var _dir: Vector2 = Vector2.from_angle(randf_range(0, 2 * PI))
-	var new_asteroid: Asteroid = asteroid_spawner.spawn_large_asteroid(_pos*_origin, _dir)
+	var new_asteroid: Asteroid = asteroid_spawner.spawn_large_asteroid(_pos + _origin*Vector2(ARENA_WIDTH / 3, ARENA_HEIGHT / 3), _dir)
 	new_asteroid.destroyed.connect(_on_asteroid_destroyed)
 	new_asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
-	entities.add_child(new_asteroid)
-
+	entities.call_deferred("add_child", new_asteroid)
+	
 func enter_game_over_state() -> void:
 	gamestate = GAME_STATE.game_over
 	
@@ -116,6 +121,13 @@ func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> 
 	hit_particles.finished.connect(hit_particles.queue_free)
 	hit_particles.emitting = true
 	UI.add_child(hit_particles)
+	
+	if _size == Asteroid.SIZE.small:
+		var asteroids_left: Array[Node] = get_tree().get_nodes_in_group("asteroids")
+		if asteroids_left.size() == 1:
+			current_level += 1
+			for i: int in current_level + 1:
+				spawn_large_asteroid()
 
 func update_score_ui() -> void:
 	var current_hud: HUD = UI.get_node("HUD")
