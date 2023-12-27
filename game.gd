@@ -85,6 +85,10 @@ func _on_priority_sfx_request(sound: AudioStream, priority: int) -> void:
 
 func _on_player_death() -> void:
 	current_lives -= 1
+	var hit_particles: CPUParticles2D = particle_manager.hit_particles_emitter(current_player.position)
+	hit_particles.finished.connect(hit_particles.queue_free)
+	hit_particles.emitting = true
+	UI.add_child(hit_particles)
 	if current_lives > 0:
 		remove_life_from_ui()
 		current_player.position = ARENA_CENTER

@@ -2,7 +2,8 @@ class_name Player extends Area2D
 
 enum state {
 	normal,
-	hit_invuln
+	hit_invuln,
+	respawning
 }
 const projectile: PackedScene = preload("res://Entities/projectile.tscn")
 const projectile_sound: AudioStream = preload("res://Assets/Sound/laser.wav")
