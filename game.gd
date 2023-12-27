@@ -20,6 +20,7 @@ var gamestate: Game.GAME_STATE
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
 @onready var asteroid_spawner: AsteroidSpawner = $Services/AsteroidSpawner
+@onready var particle_manager: ParticleManager = $Services/ParticleManager
 @onready var entities: CanvasLayer = $World/Entities
 @onready var UI: CanvasLayer = $World/UI
 
@@ -47,7 +48,7 @@ func enter_title_state() -> void:
 		var _dir: Vector2 = Vector2.from_angle(randf_range(0, 2 * PI))
 		var new_asteroid: Asteroid = asteroid_spawner.spawn_large_asteroid(_pos, _dir)
 		new_asteroid.add_to_group("title_screen")
-		entities.add_child(new_asteroid)
+		entities.call_deferred("add_child", new_asteroid)
 	var titletext: PackedScene = load("res://UI/title_text.tscn")
 	var titletextnode: Label = titletext.instantiate()
 	titletextnode.add_to_group("title_screen")
@@ -66,10 +67,14 @@ func enter_active_state() -> void:
 	UI.add_child(new_hud)
 	new_hud.life_display.max_lives = max_lives
 	
-	var _pos: Vector2 = Vector2(randf_range(0, ARENA_WIDTH), randf_range(0, ARENA_HEIGHT))
+	var _pos: Vector2 = Vector2(randf_range(0, ARENA_WIDTH / 3), randf_range(0, ARENA_HEIGHT) / 3)
+	var _origin: Vector2 = Vector2(randi() % 3, randi() % 3)
+	if _origin == Vector2(1,1):
+		_origin.x += 1
 	var _dir: Vector2 = Vector2.from_angle(randf_range(0, 2 * PI))
-	var new_asteroid: Asteroid = asteroid_spawner.spawn_large_asteroid(_pos, _dir)
+	var new_asteroid: Asteroid = asteroid_spawner.spawn_large_asteroid(_pos*_origin, _dir)
 	new_asteroid.destroyed.connect(_on_asteroid_destroyed)
+	new_asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
 	entities.add_child(new_asteroid)
 
 func enter_game_over_state() -> void:
@@ -83,6 +88,7 @@ func _on_player_death() -> void:
 	if current_lives > 0:
 		remove_life_from_ui()
 		current_player.position = ARENA_CENTER
+		current_player.current_velocity = Vector2.ZERO
 	else:
 		reset()
 
@@ -99,7 +105,13 @@ func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> 
 			pass
 	for asteroid: Asteroid in burst:
 		asteroid.destroyed.connect(_on_asteroid_destroyed)
+		asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
 		entities.call_deferred("add_child", asteroid)
+	
+	var hit_particles: CPUParticles2D = particle_manager.hit_particles_emitter(pos)
+	hit_particles.finished.connect(hit_particles.queue_free)
+	hit_particles.emitting = true
+	UI.add_child(hit_particles)
 
 func update_score_ui() -> void:
 	var current_hud: HUD = UI.get_node("HUD")

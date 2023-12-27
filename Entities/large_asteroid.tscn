@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://t5uan7omhlgb"]
+[gd_scene load_steps=5 format=3 uid="uid://t5uan7omhlgb"]
 
 [ext_resource type="Script" path="res://Entities/large_asteroid.gd" id="1_1n6rw"]
 [ext_resource type="Texture2D" uid="uid://c23w5uwlwxusd" path="res://Assets/Art/large_asteroid_1.png" id="1_ehfhg"]
+[ext_resource type="PackedScene" uid="uid://lp4bk5xnsveh" path="res://hit_particles.tscn" id="3_tfs63"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oksrc"]
 size = Vector2(63, 63)
@@ -15,5 +16,7 @@ texture = ExtResource("1_ehfhg")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-3.5, 2.5)
 shape = SubResource("RectangleShape2D_oksrc")
+
+[node name="HitParticles" parent="." instance=ExtResource("3_tfs63")]
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]

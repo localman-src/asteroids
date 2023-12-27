@@ -6,14 +6,19 @@ enum state {
 }
 const projectile: PackedScene = preload("res://Entities/projectile.tscn")
 const projectile_sound: AudioStream = preload("res://Assets/Sound/laser.wav")
+const death_sound: AudioStream = preload("res://Assets/Sound/explosion.wav")
 
 const rotation_speed: float = 2 * PI
 const acceleration: float = 400.0
 const max_speed: float = 600.0
 
+const invulnerable_time: float = 0.67
+
 var current_acceleration: Vector2 = Vector2(0, 0)
 var current_velocity: Vector2 = Vector2(0, 0)
 var current_direction: Vector2 = Vector2(0, 0)
+var current_state: Player.state = Player.state.normal
+var invuln_elapsed: float = 0.0
 
 signal we_need_a_beep(sound: AudioStream, priority: int)
 signal im_freaking_dead
@@ -49,6 +54,10 @@ func _process(delta: float) -> void:
 		
 	if Game.is_out_of_play(self):
 		Game.wrap_screen(self)
+	
+	if current_state == Player.state.hit_invuln:
+		modulate.a = cos(invuln_elapsed * 16 * PI * delta)
+		invuln_elapsed += 1
 
 func shoot() -> void:
 	var new_projectile: Projectile = projectile.instantiate()
@@ -59,3 +68,22 @@ func shoot() -> void:
 func reset() -> void:
 	queue_free()
 
+func enter_hit_invuln_state() -> void:
+	current_state = Player.state.hit_invuln
+	invuln_elapsed = 0.0
+	get_tree().create_timer(invulnerable_time).timeout.connect(enter_normal_state)
+
+func enter_normal_state() -> void:
+	current_state = Player.state.normal
+	modulate.a = 1.0
+	
+func _on_area_entered(area: Area2D) -> void:
+	if area is Asteroid && current_state != Player.state.hit_invuln:
+		health_component.decrease_health(1)
+		we_need_a_beep.emit(death_sound, 10)
+		enter_hit_invuln_state()
+
+func _on_health_component_health_depleted() -> void:
+	im_freaking_dead.emit()
+	health_component.reset()
+	
