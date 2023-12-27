@@ -126,3 +126,13 @@ static func is_out_of_play(node: Node2D) -> bool:
 		var up: bool = node.position.y < 0 - hitbox.size.y
 		return right || down || left || up
 	return false
+
+static func wrap_screen(node: Node2D) -> void:
+		if node.position.x < 0:
+			node.position.x = Game.ARENA_WIDTH
+		if node.position.x > Game.ARENA_WIDTH:
+			node.position.x = 0
+		if node.position.y < 0:
+			node.position.y = Game.ARENA_HEIGHT
+		if node.position.y > Game.ARENA_HEIGHT:
+			node.position.y = 0

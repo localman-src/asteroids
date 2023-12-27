@@ -1,5 +1,9 @@
 class_name Player extends Area2D
 
+enum state {
+	normal,
+	hit_invuln
+}
 const projectile: PackedScene = preload("res://Entities/projectile.tscn")
 const projectile_sound: AudioStream = preload("res://Assets/Sound/laser.wav")
 
@@ -44,14 +48,7 @@ func _process(delta: float) -> void:
 		shoot()
 		
 	if Game.is_out_of_play(self):
-		if position.x < 0:
-			position.x = Game.ARENA_WIDTH
-		if position.x > Game.ARENA_WIDTH:
-			position.x = 0
-		if position.y < 0:
-			position.y = Game.ARENA_HEIGHT
-		if position.y > Game.ARENA_HEIGHT:
-			position.y = 0
+		Game.wrap_screen(self)
 
 func shoot() -> void:
 	var new_projectile: Projectile = projectile.instantiate()
@@ -61,3 +58,4 @@ func shoot() -> void:
 
 func reset() -> void:
 	queue_free()
+
