@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlnxrp80a71o8"]
+[gd_scene load_steps=4 format=3 uid="uid://dlnxrp80a71o8"]
 
 [ext_resource type="Script" path="res://Entities/small_asteroid.gd" id="1_n6y86"]
+[ext_resource type="Texture2D" uid="uid://by1bn207w3aqi" path="res://Assets/Art/small_asteroid_1.png" id="2_t7mx7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_60kvn"]
 
 [node name="SmallAsteroid" type="Area2D"]
 script = ExtResource("1_n6y86")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_t7mx7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, 0)
+shape = SubResource("RectangleShape2D_60kvn")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

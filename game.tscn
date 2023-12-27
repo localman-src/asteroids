@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://dl5uh8bnq85lh"]
+[gd_scene load_steps=8 format=3 uid="uid://dl5uh8bnq85lh"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_0bc3q"]
 [ext_resource type="Texture2D" uid="uid://bjimsb7v277nn" path="res://Assets/Art/Backgrounds/background.png" id="1_a7lvi"]
 [ext_resource type="PackedScene" uid="uid://w0yybb8rj0wg" path="res://Services/sfx_player.tscn" id="2_xnihr"]
 [ext_resource type="Texture2D" uid="uid://bqxuqylmse3kb" path="res://Assets/Art/Backgrounds/far_stars.png" id="2_xyst3"]
+[ext_resource type="PackedScene" uid="uid://bmn7p66t4xgqk" path="res://Services/asteroid_spawner.tscn" id="3_1wdcd"]
 [ext_resource type="Texture2D" uid="uid://hsyomatlox2w" path="res://Assets/Art/Backgrounds/med_stars.png" id="3_eo640"]
 [ext_resource type="Texture2D" uid="uid://bdgtdhqopge61" path="res://Assets/Art/Backgrounds/close_stars.png" id="4_rrici"]
 
@@ -13,6 +14,8 @@ script = ExtResource("1_0bc3q")
 [node name="Services" type="Node" parent="."]
 
 [node name="SFXPlayer" parent="Services" instance=ExtResource("2_xnihr")]
+
+[node name="AsteroidSpawner" parent="Services" instance=ExtResource("3_1wdcd")]
 
 [node name="World" type="Node" parent="."]
 

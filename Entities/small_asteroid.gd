@@ -3,9 +3,11 @@ class_name SmallAsteroid extends Asteroid
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	super()
+	size = Asteroid.SIZE.small
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
-	pass
+func _on_area_entered(area: Area2D) -> void:
+	if area is Projectile:
+		destroyed.emit(1000, position, Asteroid.SIZE.small)
+		area.queue_free()
+		queue_free()
