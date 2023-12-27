@@ -6,16 +6,17 @@ enum SIZE {
 	small
 }
 
-const SPEED: float = 150.0
+const SPEED: float = 75.0
 
 var size: Asteroid.SIZE
 var initial_direction: Vector2 = Vector2.from_angle(randf_range(0, 2 * PI))
 var initial_rotation: float = randf_range(-PI / 3, PI / 3)
 
+signal destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
-
+	add_to_group("reset")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -31,3 +32,7 @@ func _process(delta: float) -> void:
 			position.y = Game.ARENA_HEIGHT
 		if position.y > Game.ARENA_HEIGHT:
 			position.y = 0
+
+func reset() -> void:
+	queue_free()
+
