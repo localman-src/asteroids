@@ -168,7 +168,7 @@ func __add(_name: String, _events: Dictionary, _has_parent: bool) -> void:
 		enter()
 	pass
 
-func inherit() -> LMSM:
+func inherit(_args: Array[Variant] = []) -> LMSM:
 	var _state: String =__get_current_state()
 	if !__parent.has(_state):
 		print(warn_state_parent_dne % _state)
@@ -177,7 +177,7 @@ func inherit() -> LMSM:
 	__child_queue.push_front(_state)
 	_state = __parent[_state]
 	__history[0] = _state
-	__execute(__curr_event)
+	__execute(__curr_event, _args)
 	if __child_queue.size() > 0:
 		__history[0] = __child_queue.pop_front()
 	return self
