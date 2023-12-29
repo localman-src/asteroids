@@ -1,12 +1,10 @@
 class_name Game extends Node
-enum GAME_STATE {
-	title,
-	active,
-	game_over
-}
+
 static var ARENA_WIDTH: float = 640.0
 static var ARENA_HEIGHT: float = 480.0
 static var ARENA_CENTER: Vector2 = Vector2(ARENA_WIDTH / 2, ARENA_HEIGHT / 2)
+
+var fsm: LMSM = LMSM.new(self, "title")
 
 var player: PackedScene = preload("res://Entities/player.tscn")
 var hud: PackedScene = preload("res://UI/hud.tscn")
@@ -17,7 +15,6 @@ var current_lives: int = max_lives
 var current_player: Player
 var current_score: int = 0
 var current_level: int = 1
-var gamestate: Game.GAME_STATE
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
 @onready var asteroid_spawner: AsteroidSpawner = $Services/AsteroidSpawner
@@ -26,23 +23,25 @@ var gamestate: Game.GAME_STATE
 @onready var UI: CanvasLayer = $World/UI
 
 func _ready() -> void:
-	enter_title_state()
+	fsm.add("title", {
+		"enter" : enter_title_state
+	})
+	fsm.add("active", {
+		"enter" : enter_active_state,
+		"leave" : reset
+	})
+	
+	fsm.add_transition("t_start_game", "title", "active", func()->bool: return Input.is_action_just_pressed("ui_accept"))
+	fsm.add_transition("t_return_to_title", "active", "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"))
+	fsm.add_reflexive_transition("t_quit_game", "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"), fsm.leave, get_tree().quit)
 
 func _process(_delta: float) -> void:
-	match gamestate:
-		GAME_STATE.title:
-			if Input.is_action_just_pressed("ui_accept"):
-				enter_active_state()
-			if Input.is_action_just_pressed("ui_cancel"):
-				get_tree().quit()
-		GAME_STATE.active:
-			if Input.is_action_just_pressed("ui_cancel"):
-				enter_game_over_state()
-		GAME_STATE.game_over:
-			reset()
+	fsm.step([_delta])
+	fsm.trigger("t_quit_game")
+	fsm.trigger("t_start_game")
+	fsm.trigger("t_return_to_title")
 
 func enter_title_state() -> void:
-	gamestate = GAME_STATE.title
 	for i: int in 3:
 		var _pos: Vector2 = Vector2(randf_range(0, ARENA_WIDTH), randf_range(0, ARENA_HEIGHT))
 		var _dir: Vector2 = Vector2.from_angle(randf_range(0, 2 * PI))
@@ -55,7 +54,6 @@ func enter_title_state() -> void:
 	UI.add_child(titletextnode)
 	
 func enter_active_state() -> void:
-	gamestate = GAME_STATE.active
 	get_tree().call_group("title_screen", "queue_free")
 	var new_player: Player = player.instantiate()
 	new_player.we_need_a_beep.connect(_on_priority_sfx_request)
@@ -82,9 +80,6 @@ func spawn_large_asteroid() -> void:
 	new_asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
 	entities.call_deferred("add_child", new_asteroid)
 	
-func enter_game_over_state() -> void:
-	gamestate = GAME_STATE.game_over
-	
 func _on_priority_sfx_request(sound: AudioStream, priority: int) -> void:
 	sfx_player._on_sound_request(sound, priority)
 
@@ -98,8 +93,6 @@ func _on_player_death() -> void:
 		remove_life_from_ui()
 		current_player.position = ARENA_CENTER
 		current_player.current_velocity = Vector2.ZERO
-	else:
-		reset()
 
 func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> void:
 	current_score += points
@@ -138,11 +131,9 @@ func remove_life_from_ui() -> void:
 	current_hud.life_display.remove_life()
 
 func reset() -> void:
-	gamestate = GAME_STATE.title
 	current_lives = max_lives
 	current_score = 0
 	get_tree().call_group("reset", "reset")
-	enter_title_state()
 	
 static func is_out_of_play(node: Node2D) -> bool:
 	var collision: CollisionShape2D = node.get_node_or_null("CollisionShape2D")
