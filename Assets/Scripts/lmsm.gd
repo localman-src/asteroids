@@ -1,6 +1,6 @@
-#This state machine script is a GDscript port of SnowState by Sohom Sahaun.
-#SnowState is available at https://github.com/sohomsahaun/SnowState
-#under the MIT License:
+#This script is a GDScript port of Sohom Sahaun's SnowState.
+#SnowState is available at https://github.com/sohomsahaun/SnowState under the MIT License:
+#https://github.com/sohomsahaun/SnowState/blob/master/LICENSE
 #
 #MIT License
 #
