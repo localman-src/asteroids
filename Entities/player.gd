@@ -50,11 +50,6 @@ func _ready() -> void:
 				shoot()
 			if Game.is_out_of_play(self):
 				Game.wrap_screen(self)
-			invulnerable_time -= delta
-			if invulnerable_time >= 0:
-				modulate.a = sin(invulnerable_time*16*PI)
-			else:
-				modulate.a = 1.0
 	})
 	fsm.add_child("normal", "accelerating", {
 		"enter" : func() -> void:
@@ -67,15 +62,36 @@ func _ready() -> void:
 			fsm.inherit([delta])
 	})
 	
-	fsm.add_transition("accelerate", "normal", "accelerating", func()->bool:return acceleration_input)
-	fsm.add_transition("stop_accelerating", "accelerating", "normal", func()->bool:return !acceleration_input)
-
+	fsm.add_child("normal", "normal_hit_invuln", {
+		"step" : func(delta: float) -> void:
+			fsm.inherit([delta])
+			invulnerable_time -= delta
+			if invulnerable_time >= 0:
+				modulate.a = sin(invulnerable_time*16*PI)
+			else:
+				modulate.a = 1.0
+	})
+	fsm.add_child("accelerating", "accel_hit_invuln", {
+		"step" : func(delta: float) -> void:
+			fsm.inherit([delta])
+			invulnerable_time -= delta
+			if invulnerable_time >= 0:
+				modulate.a = sin(invulnerable_time*16*PI)
+			else:
+				modulate.a = 1.0
+	})
+	fsm.add_transition("accelerate", ["normal"], "accelerating", func()->bool:return acceleration_input)
+	fsm.add_transition("stop_accelerating", ["accelerating"], "normal", func()->bool:return !acceleration_input)
+	fsm.add_transition("hit_invuln", ["normal"], "normal_hit_invuln", func() -> bool: return invulnerable_time > 0)
+	fsm.add_transition("hit_invuln", ["accelerating"], "accel_hit_invuln", func() -> bool: return acceleration_input && invulnerable_time > 0)
+	fsm.add_transition("hit_invuln", ["normal_hit_invuln", "accel_hit_invuln"], "normal", func() -> bool: return invulnerable_time <= 0)
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	check_input()
-	fsm.step([delta])
+	fsm.event("step", [delta])
 	fsm.trigger("accelerate")
 	fsm.trigger("stop_accelerating")
+	fsm.trigger("hit_invuln")
 
 func check_input() -> void:
 	rotation_input = Input.get_axis("ui_left", "ui_right")

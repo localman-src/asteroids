@@ -31,15 +31,14 @@ func _ready() -> void:
 		"leave" : reset
 	})
 	
-	fsm.add_transition("t_start_game", "title", "active", func()->bool: return Input.is_action_just_pressed("ui_accept"))
-	fsm.add_transition("t_return_to_title", "active", "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"))
-	fsm.add_reflexive_transition("t_quit_game", "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"), fsm.leave, get_tree().quit)
+	fsm.add_transition("t_game_triggers", ["title"], "active", func()->bool: return Input.is_action_just_pressed("ui_accept"))
+	fsm.add_transition("t_game_triggers", ["active"], "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"))
+	fsm.add_transition("t_lost_the_game", ["active"], "title", func() ->bool: return current_lives <= 0)
+	fsm.add_reflexive_transition("t_game_triggers", ["title"], func()->bool: return Input.is_action_just_pressed("ui_cancel"), fsm.leave, get_tree().quit)
 
 func _process(_delta: float) -> void:
-	fsm.step([_delta])
-	fsm.trigger("t_quit_game")
-	fsm.trigger("t_start_game")
-	fsm.trigger("t_return_to_title")
+	fsm.event("step", [_delta])
+	fsm.trigger("t_game_triggers")
 
 func enter_title_state() -> void:
 	for i: int in 3:
@@ -89,10 +88,10 @@ func _on_player_death() -> void:
 	hit_particles.finished.connect(hit_particles.queue_free)
 	hit_particles.emitting = true
 	UI.add_child(hit_particles)
-	if current_lives > 0:
-		remove_life_from_ui()
-		current_player.position = ARENA_CENTER
-		current_player.current_velocity = Vector2.ZERO
+	remove_life_from_ui()
+	current_player.position = ARENA_CENTER
+	current_player.current_velocity = Vector2.ZERO
+	fsm.trigger("t_lost_the_game")
 
 func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> void:
 	current_score += points
