@@ -17,7 +17,9 @@ const max_speed: float = 600.0
 const max_invulnerable_time: float = 0.67
 var invulnerable_time: float = 0.0
 
-var fsm: LMSM = LMSM.new(self, "normal")
+var fsm: LMSM = LMSM.new(self, "coasting")
+var hit_fsm: LMSM = LMSM.new(self, "vulnerable")
+
 var rotation_input: float
 var acceleration_input: bool
 var fire_input: bool
@@ -38,7 +40,7 @@ signal im_freaking_dead
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("reset")
-	fsm.add("normal", {
+	fsm.add("coasting", {
 		"enter" : func() -> void:
 			sprite.play("Idle"),
 		"step" : func(delta: float) -> void:
@@ -51,7 +53,7 @@ func _ready() -> void:
 			if Game.is_out_of_play(self):
 				Game.wrap_screen(self)
 	})
-	fsm.add_child("normal", "accelerating", {
+	fsm.add_child("coasting", "accelerating", {
 		"enter" : func() -> void:
 			sprite.play("Accelerating"),
 		"step" : func(delta: float) -> void:
@@ -62,36 +64,29 @@ func _ready() -> void:
 			fsm.inherit([delta])
 	})
 	
-	fsm.add_child("normal", "normal_hit_invuln", {
+	fsm.add_transition("t_movement", ["coasting"], "accelerating", func()->bool:return acceleration_input)
+	fsm.add_transition("t_movement", ["accelerating"], "coasting", func()->bool:return !acceleration_input)
+	
+	hit_fsm.add("vulnerable", {})
+	hit_fsm.add("invulnerable", {
 		"step" : func(delta: float) -> void:
-			fsm.inherit([delta])
 			invulnerable_time -= delta
 			if invulnerable_time >= 0:
 				modulate.a = sin(invulnerable_time*16*PI)
 			else:
 				modulate.a = 1.0
 	})
-	fsm.add_child("accelerating", "accel_hit_invuln", {
-		"step" : func(delta: float) -> void:
-			fsm.inherit([delta])
-			invulnerable_time -= delta
-			if invulnerable_time >= 0:
-				modulate.a = sin(invulnerable_time*16*PI)
-			else:
-				modulate.a = 1.0
-	})
-	fsm.add_transition("accelerate", ["normal"], "accelerating", func()->bool:return acceleration_input)
-	fsm.add_transition("stop_accelerating", ["accelerating"], "normal", func()->bool:return !acceleration_input)
-	fsm.add_transition("hit_invuln", ["normal"], "normal_hit_invuln", func() -> bool: return invulnerable_time > 0)
-	fsm.add_transition("hit_invuln", ["accelerating"], "accel_hit_invuln", func() -> bool: return acceleration_input && invulnerable_time > 0)
-	fsm.add_transition("hit_invuln", ["normal_hit_invuln", "accel_hit_invuln"], "normal", func() -> bool: return invulnerable_time <= 0)
+	
+	hit_fsm.add_transition("t_vulnerability", ["vulnerable"], "invulnerable", func()->bool: return invulnerable_time > 0)
+	hit_fsm.add_transition("t_vulnerability", ["invulnerable"], "vulnerable", func()->bool: return invulnerable_time <= 0)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	check_input()
 	fsm.event("step", [delta])
-	fsm.trigger("accelerate")
-	fsm.trigger("stop_accelerating")
-	fsm.trigger("hit_invuln")
+	hit_fsm.event("step", [delta])
+	fsm.trigger("t_movement")
+	hit_fsm.trigger("t_vulnerability")
 
 func check_input() -> void:
 	rotation_input = Input.get_axis("ui_left", "ui_right")
@@ -116,4 +111,3 @@ func _on_area_entered(area: Area2D) -> void:
 func _on_health_component_health_depleted() -> void:
 	im_freaking_dead.emit()
 	health_component.reset()
-	
