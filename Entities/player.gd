@@ -24,7 +24,6 @@ var rotation_input: float
 var acceleration_input: bool
 var fire_input: bool
 
-
 var current_acceleration: Vector2 = Vector2(0, 0)
 var current_velocity: Vector2 = Vector2(0, 0)
 var current_direction: Vector2 = Vector2(0, 0)
@@ -63,10 +62,9 @@ func _ready() -> void:
 			current_velocity = current_velocity.normalized() * speed
 			fsm.inherit([delta])
 	})
-	
 	fsm.add_transition("t_movement", ["coasting"], "accelerating", func()->bool:return acceleration_input)
 	fsm.add_transition("t_movement", ["accelerating"], "coasting", func()->bool:return !acceleration_input)
-	
+
 	hit_fsm.add("vulnerable", {})
 	hit_fsm.add("invulnerable", {
 		"step" : func(delta: float) -> void:
@@ -76,7 +74,6 @@ func _ready() -> void:
 			else:
 				modulate.a = 1.0
 	})
-	
 	hit_fsm.add_transition("t_vulnerability", ["vulnerable"], "invulnerable", func()->bool: return invulnerable_time > 0)
 	hit_fsm.add_transition("t_vulnerability", ["invulnerable"], "vulnerable", func()->bool: return invulnerable_time <= 0)
 
