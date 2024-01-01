@@ -1,11 +1,5 @@
 class_name Player extends Area2D
 
-enum state {
-	normal,
-	hit_invuln,
-	respawning
-}
-
 const projectile: PackedScene = preload("res://Entities/projectile.tscn")
 const projectile_sound: AudioStream = preload("res://Assets/Sound/laser.wav")
 const death_sound: AudioStream = preload("res://Assets/Sound/explosion.wav")
@@ -27,7 +21,6 @@ var fire_input: bool
 var current_acceleration: Vector2 = Vector2(0, 0)
 var current_velocity: Vector2 = Vector2(0, 0)
 var current_direction: Vector2 = Vector2(0, 0)
-var current_state: Player.state = Player.state.normal
 
 signal we_need_a_beep(sound: AudioStream, priority: int)
 signal im_freaking_dead
