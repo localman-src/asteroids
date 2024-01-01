@@ -94,6 +94,7 @@ func shoot() -> void:
 	var new_projectile: Projectile = projectile.instantiate()
 	new_projectile.position = self.position + self.current_direction * 16
 	new_projectile.direction = self.current_direction
+	new_projectile.fired_by = self
 	$"..".add_child(new_projectile)
 
 func reset() -> void:
@@ -104,6 +105,13 @@ func _on_area_entered(area: Area2D) -> void:
 		health_component.decrease_health(1)
 		we_need_a_beep.emit(death_sound, 10)
 		invulnerable_time = max_invulnerable_time
+	
+	if area is Projectile && invulnerable_time <= 0:
+		if area.fired_by != self:
+			health_component.decrease_health(1)
+			we_need_a_beep.emit(death_sound, 10)
+			invulnerable_time = max_invulnerable_time
+			area.queue_free()
 
 func _on_health_component_health_depleted() -> void:
 	im_freaking_dead.emit()

@@ -8,6 +8,7 @@ var fsm: LMSM = LMSM.new(self, "title")
 
 var player: PackedScene = preload("res://Entities/player.tscn")
 var hud: PackedScene = preload("res://UI/hud.tscn")
+var ufo: PackedScene = preload("res://Entities/alien.tscn")
 var split_count: int = 3
 
 var max_lives: int = 3
@@ -15,6 +16,9 @@ var current_lives: int = max_lives
 var current_player: Player
 var current_score: int = 0
 var current_level: int = 1
+
+var ufo_spawn_point: Vector2
+var ufo_spawn_time: float = 15.0
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
 @onready var asteroid_spawner: AsteroidSpawner = $Services/AsteroidSpawner
@@ -67,6 +71,7 @@ func enter_active_state() -> void:
 	
 	for i: int in current_level + 1:
 		spawn_large_asteroid()
+	get_tree().create_timer(ufo_spawn_time).timeout.connect(spawn_ufo)
 
 func spawn_large_asteroid() -> void:
 	var _pos: Vector2 = Vector2(randf_range(0, ARENA_WIDTH / 3), randf_range(0, ARENA_HEIGHT) / 3)
@@ -78,6 +83,18 @@ func spawn_large_asteroid() -> void:
 	new_asteroid.destroyed.connect(_on_asteroid_destroyed)
 	new_asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
 	entities.call_deferred("add_child", new_asteroid)
+	
+func spawn_ufo() -> void:
+	if fsm.__get_current_state().__name == "title":
+		return
+	var new_ufo: Alien = ufo.instantiate()
+	new_ufo.position = Vector2(-300, randf_range(0, Game.ARENA_HEIGHT))
+	new_ufo.target = Game.ARENA_CENTER + Vector2(randf_range(0, Game.ARENA_WIDTH / 2), randf_range(-Game.ARENA_HEIGHT / 2, Game.ARENA_HEIGHT / 2))
+	new_ufo.we_need_a_beep.connect(_on_priority_sfx_request)
+	new_ufo.alien_destroyed.connect(_on_alien_destroyed)
+	entities.add_child(new_ufo)
+	get_tree().create_timer(ufo_spawn_time).timeout.connect(spawn_ufo)
+	
 	
 func _on_priority_sfx_request(sound: AudioStream, priority: int) -> void:
 	sfx_player._on_sound_request(sound, priority)
@@ -104,6 +121,7 @@ func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> 
 			burst = asteroid_spawner.asteroid_burst(pos, Asteroid.SIZE.small)
 		_:
 			pass
+			
 	for asteroid: Asteroid in burst:
 		asteroid.destroyed.connect(_on_asteroid_destroyed)
 		asteroid.we_need_a_beep.connect(_on_priority_sfx_request)
@@ -121,6 +139,15 @@ func _on_asteroid_destroyed(points: int, pos: Vector2, _size: Asteroid.SIZE) -> 
 			for i: int in current_level + 1:
 				spawn_large_asteroid()
 
+func _on_alien_destroyed(points: int, pos: Vector2) -> void:
+	current_score += points
+	update_score_ui()
+	
+	var hit_particles: CPUParticles2D = particle_manager.hit_particles_emitter(pos)
+	hit_particles.finished.connect(hit_particles.queue_free)
+	hit_particles.emitting = true
+	UI.add_child(hit_particles)
+	
 func update_score_ui() -> void:
 	var current_hud: HUD = UI.get_node("HUD")
 	current_hud.update_score(current_score)
@@ -132,6 +159,7 @@ func remove_life_from_ui() -> void:
 func reset() -> void:
 	current_lives = max_lives
 	current_score = 0
+	current_level = 1
 	get_tree().call_group("reset", "reset")
 	
 static func is_out_of_play(node: Node2D) -> bool:

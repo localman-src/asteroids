@@ -5,11 +5,5 @@ class_name LargeAsteroid extends Asteroid
 func _ready() -> void:
 	super()
 	size = Asteroid.SIZE.large
+	point_value = 100
 
-func _on_area_entered(area: Area2D) -> void:
-	if area is Projectile:
-		destroyed.emit(100, position, Asteroid.SIZE.large)
-		we_need_a_beep.emit(explosion, 3)
-		area.queue_free()
-		queue_free()
-		

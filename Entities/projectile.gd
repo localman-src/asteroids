@@ -2,13 +2,14 @@ class_name Projectile extends Area2D
 
 var max_speed: float = 1000.0
 var direction: Vector2 = Vector2.UP
-
+var lifetime: float = 1.5
+var fired_by: Node
 @onready var collision: CollisionShape2D = $CollisionShape2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	add_to_group("reset")
-	get_tree().create_timer(1.5).timeout.connect(_on_lifetime_timeout)
+	get_tree().create_timer(lifetime).timeout.connect(_on_lifetime_timeout)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
