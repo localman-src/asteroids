@@ -8,7 +8,6 @@ var fsm: LMSM = LMSM.new(self, "approaching")
 var target: Vector2
 var speed: float = 400
 var dir: Vector2
-var arrived: bool
 var shoot_dir: Vector2
 var aim_delay: float = 1.0
 var point_value: int = 10000
@@ -27,11 +26,12 @@ func _ready() -> void:
 			sprite.play("default")
 			dir = (target - position).normalized(),
 		"step" : func(delta: float) -> void:
-			position += dir * speed * delta
-			has_arrived(delta)
+			position += dir * speed * delta,
+		"leave" : func(_delta: float = 0) -> void:
+			pass
 	})
 	fsm.add("attacking", {
-		"enter" : func() -> void:
+		"enter" : func(_delta: float = 0) -> void:
 			var player: Player = $"../Player"
 			shoot_dir = (player.position - position).normalized()
 			get_tree().create_timer(aim_delay).timeout.connect(shoot)
@@ -43,13 +43,17 @@ func _ready() -> void:
 				queue_free()
 	})
 	
-	fsm.add_transition("t_arrived", ["approaching"], "attacking", func()->bool: return arrived) 
+	fsm.add_transition(
+		"t_arrived", 
+		["approaching"], "attacking", 
+		func(delta:float)->bool: return (target - position).length() < speed * delta) 
+	
 	fsm.add_transition("t_retreat", ["attacking"], "retreating")
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	fsm.event("step", [delta])
-	fsm.trigger("t_arrived")
+	fsm.trigger("t_arrived", [delta])
 	
 func shoot() -> void:
 	we_need_a_beep.emit(projectile_sound, 10)
@@ -60,9 +64,6 @@ func shoot() -> void:
 	new_projectile.lifetime = .667
 	$"..".add_child(new_projectile)
 	fsm.trigger("t_retreat")
-
-func has_arrived(delta: float) -> void:
-	arrived = (target - position).length() < speed * delta
 
 func reset() -> void:
 	queue_free()

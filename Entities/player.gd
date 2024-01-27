@@ -100,7 +100,7 @@ func _on_area_entered(area: Area2D) -> void:
 		invulnerable_time = max_invulnerable_time
 	
 	if area is Projectile && invulnerable_time <= 0:
-		if area.fired_by != self:
+		if (area as Projectile).fired_by != self:
 			health_component.decrease_health(1)
 			we_need_a_beep.emit(death_sound, 10)
 			invulnerable_time = max_invulnerable_time

@@ -312,10 +312,10 @@ func __try_triggers(_transitions: Array[Transition], _source: String, _args: Arr
 		if _dest == REFLEXIVE_TRANSITION_NAME:
 			_dest = _source
 		if _transition.condition.callv(_args):
-			_transition.leave.callv(_args)
+			_transition.leave.call(_args)
 			__state_start_time = Time.get_ticks_usec()
 			__history_add(_dest)
-			_transition.enter.callv(_args)
+			_transition.enter.call(_args)
 			return true
 	return false
 	

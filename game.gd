@@ -18,7 +18,7 @@ var current_score: int = 0
 var current_level: int = 1
 
 var ufo_spawn_point: Vector2
-var ufo_spawn_time: float = 15.0
+var ufo_spawn_time: float = 1.0
 
 @onready var sfx_player: SFXPlayer = $Services/SFXPlayer
 @onready var asteroid_spawner: AsteroidSpawner = $Services/AsteroidSpawner
@@ -38,7 +38,7 @@ func _ready() -> void:
 	fsm.add_transition("t_game_triggers", ["title"], "active", func()->bool: return Input.is_action_just_pressed("ui_accept"))
 	fsm.add_transition("t_game_triggers", ["active"], "title", func()->bool: return Input.is_action_just_pressed("ui_cancel"))
 	fsm.add_transition("t_lost_the_game", ["active"], "title", func() ->bool: return current_lives <= 0)
-	fsm.add_reflexive_transition("t_game_triggers", ["title"], func()->bool: return Input.is_action_just_pressed("ui_cancel"), fsm.leave, get_tree().quit)
+	fsm.add_reflexive_transition("t_game_triggers", ["title"], func()->bool: return Input.is_action_just_pressed("ui_cancel"), fsm.leave, func(_args: Array = []) ->void: get_tree().quit())
 
 func _process(_delta: float) -> void:
 	fsm.event("step", [_delta])
